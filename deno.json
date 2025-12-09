@@ -1,6 +1,6 @@
 {
   "name": "@denostack/timerider",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "tasks": {
     "test": "deno task test:unit && deno task test:lint && deno task test:format && deno task test:types",
     "test:format": "deno fmt --check",
