@@ -11,14 +11,14 @@
   <a href="https://npmcharts.com/compare/timerider?minimal=true"><img alt="Downloads" src="https://img.shields.io/npm/dt/timerider.svg?style=flat-square" /></a>
 </p>
 
-A robust timer library for Deno that solves common issues with standard `setTimeout` and `setInterval`.
+Accurate timers with drift correction, pause/resume, and long delay support.
 
 ## Features
 
 Timerider improves upon standard timers in three key ways:
 
-1. **Time Drift Correction**: Automatically corrects time drift within 250ms for both `setInterval` and `setTimeout`,
-   ensuring more accurate timing over long periods.
+1. **Time Drift Correction**: Automatically corrects time drift for both `setInterval` and `setTimeout`, ensuring more
+   accurate timing over long periods.
 2. **Long Delay Support**: Handles delays longer than the 32-bit integer limit (`2^31 - 1` ms), which standard timers
    cannot process correctly.
 3. **Pause & Resume**: Adds the ability to pause a timer and resume it later, perfect for games or interactive
