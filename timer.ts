@@ -137,7 +137,7 @@ function parseInterval(from: number, interval: number) {
     return from;
   }
   const now = Date.now();
-  while (now > from) {
+  while (now >= from) {
     from += interval;
   }
   return from;
