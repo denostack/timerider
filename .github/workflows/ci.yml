@@ -31,7 +31,7 @@ jobs:
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          slug: denostack/universal-decorator
+          slug: denostack/timerider
           file: ./coverage.lcov
       - name: Build Module
         run: deno task build:npm
