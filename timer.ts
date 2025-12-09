@@ -75,7 +75,7 @@ export function createInterval(
   interval?: number,
   delay?: number | Date,
 ): Timer {
-  let waitUntil = parseDelay(delay ?? 0) + (interval ?? 0);
+  let waitUntil = parseInterval(parseDelay(delay ?? 0), interval ?? 0);
   let timer: ReturnType<typeof setTimeout> | null = null;
   let stopRemains: number | null = null;
   let isCompleted = false;
@@ -97,7 +97,7 @@ export function createInterval(
     if (remains <= ACCURACY) {
       timer = setTimeout(() => {
         cb();
-        waitUntil += interval || 0;
+        waitUntil = parseInterval(waitUntil, interval || 0);
         start();
       }, remains);
     } else {
@@ -130,4 +130,15 @@ function parseDelay(delay: number | Date): number {
     return delay.getTime();
   }
   return Date.now() + delay;
+}
+
+function parseInterval(from: number, interval: number) {
+  if (interval === 0) {
+    return from;
+  }
+  const now = Date.now();
+  while (now > from) {
+    from += interval;
+  }
+  return from;
 }
