@@ -41,18 +41,18 @@ Deno.test("createTimeout() - executes callback after delay (Date)", async () => 
   assertSpyCalls(spyCallback, 1);
 });
 
-Deno.test("createTimeout() - can be stopped and restarted", async () => {
+Deno.test("createTimeout() - can be paused and restarted", async () => {
   const spyCallback = spy(() => {});
-  // Start with 100ms delay, but stop immediately
-  const timer = createTimeout(spyCallback, 100).stop();
-  assertEquals(timer.state(), "stopped");
+  // Start with 100ms delay, but pause immediately
+  const timer = createTimeout(spyCallback, 100).pause();
+  assertEquals(timer.state(), "paused");
 
   // Wait longer than the delay
   await sleep(150);
   assertSpyCalls(spyCallback, 0);
 
   // Restart
-  timer.start();
+  timer.resume();
   assertEquals(timer.state(), "waiting");
 
   // Wait for the remaining time
@@ -113,31 +113,31 @@ Deno.test("createInterval() - executes with initial delay", async () => {
   timer.clear();
 });
 
-Deno.test("createInterval() - can be stopped and restarted", async () => {
+Deno.test("createInterval() - can be paused and restarted", async () => {
   const spyCallback = spy(() => {});
   const timer = createInterval(spyCallback, 50);
 
   // Allow 2 calls (~100ms)
   await sleep(120);
-  const callsBeforeStop = spyCallback.calls.length;
-  assertEquals(callsBeforeStop >= 2, true);
+  const callsBeforePause = spyCallback.calls.length;
+  assertEquals(callsBeforePause >= 2, true);
 
-  // Stop
-  timer.stop();
-  assertEquals(timer.state(), "stopped");
+  // Pause
+  timer.pause();
+  assertEquals(timer.state(), "paused");
 
   // Wait 200ms (should be no new calls)
   await sleep(200);
-  assertSpyCalls(spyCallback, callsBeforeStop);
+  assertSpyCalls(spyCallback, callsBeforePause);
 
   // Restart
-  timer.start();
+  timer.resume();
 
   // Wait another 100ms (expect more calls)
   await sleep(120);
 
   const callsAfterRestart = spyCallback.calls.length;
-  assertEquals(callsAfterRestart > callsBeforeStop, true);
+  assertEquals(callsAfterRestart > callsBeforePause, true);
 
   timer.clear();
 });

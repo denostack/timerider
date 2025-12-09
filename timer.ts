@@ -4,9 +4,9 @@ const MAX_DELAY = 2147483647; // 2 ** 31 - 1
 const ACCURACY = 250;
 
 export interface Timer {
-  state(): "waiting" | "stopped" | "completed";
-  stop(): Timer;
-  start(): Timer;
+  state(): "waiting" | "paused" | "completed";
+  pause(): Timer;
+  resume(): Timer;
   clear(): void;
 }
 
@@ -19,21 +19,21 @@ export function createTimeout(
 ): Timer {
   let waitUntil = parseDelay(delay ?? 0);
   let timer: ReturnType<typeof setTimeout> | null = null;
-  let stopRemains: number | null = null;
+  let pauseRemains: number | null = null;
   let isCompleted = false;
 
   const timeoutInstance = {} as Timer;
-  function stop() {
+  function pause() {
     if (isCompleted) return timeoutInstance;
     timer && clearTimeout(timer);
-    stopRemains = stopRemains ?? waitUntil - Date.now();
+    pauseRemains = pauseRemains ?? waitUntil - Date.now();
     return timeoutInstance;
   }
-  function start() {
+  function resume() {
     if (isCompleted) return timeoutInstance;
-    if (typeof stopRemains === "number") {
-      waitUntil = Date.now() + stopRemains;
-      stopRemains = null;
+    if (typeof pauseRemains === "number") {
+      waitUntil = Date.now() + pauseRemains;
+      pauseRemains = null;
     }
     const remains = Math.max(0, waitUntil - Date.now());
     if (remains <= ACCURACY) {
@@ -42,7 +42,7 @@ export function createTimeout(
         cb();
       }, remains);
     } else {
-      timer = setTimeout(start, Math.min(remains >> 1, MAX_DELAY));
+      timer = setTimeout(resume, Math.min(remains >> 1, MAX_DELAY));
     }
     return timeoutInstance;
   }
@@ -52,16 +52,16 @@ export function createTimeout(
   }
   function state() {
     if (isCompleted) return "completed";
-    if (typeof stopRemains === "number") return "stopped";
+    if (typeof pauseRemains === "number") return "paused";
     return "waiting";
   }
 
   timeoutInstance.state = state;
-  timeoutInstance.start = start;
-  timeoutInstance.stop = stop;
+  timeoutInstance.pause = pause;
+  timeoutInstance.resume = resume;
   timeoutInstance.clear = clear;
 
-  start();
+  resume();
 
   return timeoutInstance;
 }
@@ -77,31 +77,31 @@ export function createInterval(
 ): Timer {
   let waitUntil = parseInterval(parseDelay(delay ?? 0), interval ?? 0);
   let timer: ReturnType<typeof setTimeout> | null = null;
-  let stopRemains: number | null = null;
+  let pauseRemains: number | null = null;
   let isCompleted = false;
 
   const intervalInstance = {} as Timer;
-  function stop() {
+  function pause() {
     if (isCompleted) return intervalInstance;
     timer && clearTimeout(timer);
-    stopRemains = stopRemains ?? waitUntil - Date.now();
+    pauseRemains = pauseRemains ?? waitUntil - Date.now();
     return intervalInstance;
   }
-  function start() {
+  function resume() {
     if (isCompleted) return intervalInstance;
-    if (typeof stopRemains === "number") {
-      waitUntil = Date.now() + stopRemains;
-      stopRemains = null;
+    if (typeof pauseRemains === "number") {
+      waitUntil = Date.now() + pauseRemains;
+      pauseRemains = null;
     }
     const remains = Math.max(0, waitUntil - Date.now());
     if (remains <= ACCURACY) {
       timer = setTimeout(() => {
         cb();
         waitUntil = parseInterval(waitUntil, interval || 0);
-        start();
+        resume();
       }, remains);
     } else {
-      timer = setTimeout(start, Math.min(remains >> 1, MAX_DELAY));
+      timer = setTimeout(resume, Math.min(remains >> 1, MAX_DELAY));
     }
     return intervalInstance;
   }
@@ -111,16 +111,16 @@ export function createInterval(
   }
   function state() {
     if (isCompleted) return "completed";
-    if (typeof stopRemains === "number") return "stopped";
+    if (typeof pauseRemains === "number") return "paused";
     return "waiting";
   }
 
-  intervalInstance.start = start;
-  intervalInstance.stop = stop;
+  intervalInstance.pause = pause;
+  intervalInstance.resume = resume;
   intervalInstance.clear = clear;
   intervalInstance.state = state;
 
-  start();
+  resume();
 
   return intervalInstance;
 }
